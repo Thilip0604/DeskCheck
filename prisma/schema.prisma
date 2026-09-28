@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  phone        String
+  role         String
+  isAdmin      Boolean      @default(false)
+  passwordHash String
+  avatarHue    Int          @default(220)
+  createdAt    DateTime     @default(now())
+  sessions     Session[]
+  attendance   Attendance[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Attendance {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        String
+  mode        String
+  desk        String?
+  standupNote String
+  punchInAt   DateTime
+  punchOutAt  DateTime?
+  status      String   @default("ACTIVE")
+  forcedById  String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([userId, date, status])
+  @@index([date, mode, status])
+}
