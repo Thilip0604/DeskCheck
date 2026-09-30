@@ -51,13 +51,13 @@ export function AuthClient({ mode }: { mode: "login" | "register" }) {
             <h1 className="mt-2 text-3xl font-black tracking-tight">{isRegister ? "Create your workspace profile" : "Welcome back"}</h1>
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{isRegister ? "Choose the role that matches your work track. Leadership roles open admin access." : "Use your registered account to enter the employee or admin workspace."}</p>
           </div>
-          <form action={isRegister ? registerForm : loginForm} className="space-y-4">
-            {isRegister && <input className="field" name="name" placeholder="Full name" required />}
-            <input className="field" name="email" type="email" placeholder="Work email" required />
-            {isRegister && <input className="field" name="phone" placeholder="Phone number" required />}
+          <form action={isRegister ? registerForm : loginForm} className="space-y-4" autoComplete="off">
+            {isRegister && <input className="field" name="name" placeholder="Full name" required autoComplete="off" />}
+            <input className="field" name="email" type="email" placeholder="Work email" required autoComplete="off" data-lpignore="true" data-form-type="other" />
+            {isRegister && <input className="field" name="phone" placeholder="Phone number" required autoComplete="off" />}
             <div>
               <div className="relative">
-                <input className="field pr-11" name="password" type={showPassword ? "text" : "password"} placeholder="Password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+                <input className="field pr-11" name="password" type={showPassword ? "text" : "password"} placeholder="Password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={isRegister ? "new-password" : "off"} data-lpignore="true" data-form-type="other" />
                 <button type="button" aria-label="Toggle password visibility" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-2.5 text-zinc-500">
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -95,11 +95,11 @@ export function AuthClient({ mode }: { mode: "login" | "register" }) {
       <AnimatePresence>
         {resetOpen && (
           <motion.div className="fixed inset-0 z-20 grid place-items-center bg-zinc-950/70 p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.form action={resetForm} className="glass w-full max-w-md rounded-2xl p-6" initial={{ scale: .95 }} animate={{ scale: 1 }}>
+            <motion.form action={resetForm} className="glass w-full max-w-md rounded-2xl p-6" initial={{ scale: .95 }} animate={{ scale: 1 }} autoComplete="off">
               <h2 className="text-xl font-bold">Reset password</h2>
               <p className="mt-1 text-sm text-zinc-500">Mock recovery: enter your security email and a new password.</p>
-              <input className="field mt-5" name="email" type="email" placeholder="Work email" required />
-              <input className="field mt-3" name="password" type="password" placeholder="New password" required minLength={8} />
+              <input className="field mt-5" name="email" type="email" placeholder="Work email" required autoComplete="off" data-lpignore="true" data-form-type="other" />
+              <input className="field mt-3" name="password" type="password" placeholder="New password" required minLength={8} autoComplete="new-password" data-lpignore="true" data-form-type="other" />
               {resetState?.error && <p className="mt-3 text-sm text-rose-500">{resetState.error}</p>}
               {resetState?.ok && <p className="mt-3 text-sm text-emerald-500">{resetState.ok}</p>}
               <div className="mt-5 flex justify-end gap-2">
