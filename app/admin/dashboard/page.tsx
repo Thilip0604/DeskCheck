@@ -39,6 +39,6 @@ export default async function AdminPage() {
   });
   const onsite = active.filter((a) => a.mode === "ONSITE").length;
   const remote = active.filter((a) => a.mode === "REMOTE").length;
-  const leave = active.filter((a) => a.mode === "LEAVE").length;
+  const leave = todayShifts.filter((a) => a.mode === "LEAVE" && a.status !== "REJECTED_LEAVE").length;
   return <AdminDashboard rows={rows} totals={{ registered: employees.length, onsite, remote, leave }} />;
 }
