@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Building2, CalendarDays, Check, Home, LogOut, Moon, Pencil, Sun, Timer, Umbrella } from "lucide-react";
 import { logoutAction, punchInAction, punchOutAction, updateProfileAction } from "@/app/actions";
 import { cn, desks, todayKey } from "@/lib/utils";
@@ -24,6 +25,7 @@ export function EmployeeDashboard({ user, active, occupied, history }: { user: {
   const [desk, setDesk] = useState("");
   const [now, setNow] = useState(active ? new Date(active.punchInAt).getTime() : 0);
   const [dark, setDark] = useState(false);
+  const router = useRouter();
   const occupiedMap = useMemo(() => new Map(occupied.filter((o) => o.desk).map((o) => [o.desk!, o.user.name])), [occupied]);
 
   useEffect(() => {
@@ -37,6 +39,11 @@ export function EmployeeDashboard({ user, active, occupied, history }: { user: {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => router.refresh(), 5000);
+    return () => clearInterval(timer);
+  }, [router]);
 
   useEffect(() => {
     if (punchState?.ok) setOpen(false);
@@ -107,8 +114,8 @@ export function EmployeeDashboard({ user, active, occupied, history }: { user: {
                 <span>{item.mode}</span>
                 <span>{item.desk ?? "No desk"}</span>
                 <span>{formatTime(item.punchInAt)}</span>
-                <span>{item.punchOutAt ? formatTime(item.punchOutAt) : item.status}</span>
-                <span>{item.punchOutAt ? formatElapsed(new Date(item.punchOutAt).getTime() - new Date(item.punchInAt).getTime()) : "-"}</span>
+                <span><StatusBadge status={item.status} /></span>
+                <span>{item.status === "REJECTED_LEAVE" ? "Rejected" : item.punchOutAt ? formatElapsed(new Date(item.punchOutAt).getTime() - new Date(item.punchInAt).getTime()) : "-"}</span>
               </div>
             ))}
           </div>
@@ -201,4 +208,12 @@ const timeFormatter = new Intl.DateTimeFormat("en-IN", {
 
 function formatTime(value: string | null) {
   return value ? timeFormatter.format(new Date(value)) : "-";
+}
+
+function StatusBadge({ status }: { status: string }) {
+  if (status === "PENDING_LEAVE") return <span className="rounded-full bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-[#539e0b]">Leave pending</span>;
+  if (status === "REJECTED_LEAVE") return <span className="rounded-full bg-rose-500/10 px-2.5 py-1 text-xs font-semibold text-rose-500">Leave rejected</span>;
+  if (status === "ACTIVE") return <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-500">Active</span>;
+  if (status === "CLOSED") return <span className="rounded-full bg-zinc-500/10 px-2.5 py-1 text-xs font-semibold text-zinc-500">Completed</span>;
+  return <span>{status}</span>;
 }
