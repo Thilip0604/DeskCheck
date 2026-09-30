@@ -112,8 +112,8 @@ export function AdminDashboard({ rows, totals }: { rows: Row[]; totals: { regist
                     </div>
                   </td>
                   <td><Badge mode={row.mode} status={row.status} /></td>
-                  <td>{row.punchInAt ? new Date(row.punchInAt).toLocaleTimeString() : "-"}</td>
-                  <td>{row.punchOutAt ? `${new Date(row.punchOutAt).toLocaleTimeString()} (${duration(row)})` : "-"}</td>
+                  <td>{formatTime(row.punchInAt)}</td>
+                  <td>{row.punchOutAt ? `${formatTime(row.punchOutAt)} (${duration(row)})` : "-"}</td>
                   <td>{row.desk ?? "-"}</td>
                   <td className="max-w-xs truncate" title={row.note}>{row.note || "-"}</td>
                   <td>
@@ -154,7 +154,7 @@ export function AdminDashboard({ rows, totals }: { rows: Row[]; totals: { regist
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-zinc-500">
                 <span>Desk: {row.desk ?? "-"}</span>
-                <span>In: {row.punchInAt ? new Date(row.punchInAt).toLocaleTimeString() : "-"}</span>
+                <span>In: {formatTime(row.punchInAt)}</span>
               </div>
             </div>
           ))}
@@ -171,8 +171,8 @@ export function AdminDashboard({ rows, totals }: { rows: Row[]; totals: { regist
               <Badge mode={selected.mode} status={selected.status} />
             </div>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <Detail label="Punch in" value={selected.punchInAt ? new Date(selected.punchInAt).toLocaleString() : "-"} />
-              <Detail label="Punch out" value={selected.punchOutAt ? new Date(selected.punchOutAt).toLocaleString() : "-"} />
+              <Detail label="Punch in" value={formatDateTime(selected.punchInAt)} />
+              <Detail label="Punch out" value={formatDateTime(selected.punchOutAt)} />
               <Detail label="Worked hours" value={duration(selected)} />
               <Detail label="Desk" value={selected.desk ?? "-"} />
             </div>
@@ -210,4 +210,26 @@ function duration(row: Row) {
   const h = Math.floor(ms / 3600000);
   const m = Math.floor((ms % 3600000) / 60000);
   return `${h}h ${m}m`;
+}
+
+const timeFormatter = new Intl.DateTimeFormat("en-IN", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+  timeZone: "Asia/Kolkata"
+});
+
+const dateTimeFormatter = new Intl.DateTimeFormat("en-IN", {
+  dateStyle: "medium",
+  timeStyle: "medium",
+  timeZone: "Asia/Kolkata"
+});
+
+function formatTime(value: string | null) {
+  return value ? timeFormatter.format(new Date(value)) : "-";
+}
+
+function formatDateTime(value: string | null) {
+  return value ? dateTimeFormatter.format(new Date(value)) : "-";
 }

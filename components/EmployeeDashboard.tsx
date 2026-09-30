@@ -106,8 +106,8 @@ export function EmployeeDashboard({ user, active, occupied, history }: { user: {
                 <span className="font-semibold">{item.date}</span>
                 <span>{item.mode}</span>
                 <span>{item.desk ?? "No desk"}</span>
-                <span>{new Date(item.punchInAt).toLocaleTimeString()}</span>
-                <span>{item.punchOutAt ? new Date(item.punchOutAt).toLocaleTimeString() : item.status}</span>
+                <span>{formatTime(item.punchInAt)}</span>
+                <span>{item.punchOutAt ? formatTime(item.punchOutAt) : item.status}</span>
                 <span>{item.punchOutAt ? formatElapsed(new Date(item.punchOutAt).getTime() - new Date(item.punchInAt).getTime()) : "-"}</span>
               </div>
             ))}
@@ -189,4 +189,16 @@ function formatElapsed(ms: number) {
   const m = Math.floor((total % 3600) / 60).toString().padStart(2, "0");
   const s = Math.floor(total % 60).toString().padStart(2, "0");
   return `${h}h:${m}m:${s}s`;
+}
+
+const timeFormatter = new Intl.DateTimeFormat("en-IN", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+  timeZone: "Asia/Kolkata"
+});
+
+function formatTime(value: string | null) {
+  return value ? timeFormatter.format(new Date(value)) : "-";
 }
