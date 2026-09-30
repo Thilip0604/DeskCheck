@@ -22,7 +22,7 @@ export function EmployeeDashboard({ user, active, occupied, history }: { user: {
   const [date, setDate] = useState(todayKey());
   const [mode, setMode] = useState<WorkMode>("ONSITE");
   const [desk, setDesk] = useState("");
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(active ? new Date(active.punchInAt).getTime() : 0);
   const [dark, setDark] = useState(false);
   const occupiedMap = useMemo(() => new Map(occupied.filter((o) => o.desk).map((o) => [o.desk!, o.user.name])), [occupied]);
 

@@ -28,12 +28,14 @@ export function AdminDashboard({ rows, totals }: { rows: Row[]; totals: { regist
   const [range, setRange] = useState("TODAY");
   const [selected, setSelected] = useState<Row | null>(null);
   const [dark, setDark] = useState(false);
+  const [clientNow, setClientNow] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const filtered = useMemo(() => rows.filter((r) => (filter === "ALL" || r.mode === filter) && r.name.toLowerCase().includes(query.toLowerCase())), [rows, filter, query]);
-  const stale = rows.filter((r) => r.punchInAt && !r.punchOutAt && Date.now() - new Date(r.punchInAt).getTime() > 1000 * 60 * 60 * 10);
+  const stale = clientNow === null ? [] : rows.filter((r) => r.punchInAt && !r.punchOutAt && clientNow - new Date(r.punchInAt).getTime() > 1000 * 60 * 60 * 10);
 
   useEffect(() => {
+    setClientNow(Date.now());
     const timer = setInterval(() => router.refresh(), 5000);
     return () => clearInterval(timer);
   }, [router]);
