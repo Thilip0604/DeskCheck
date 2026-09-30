@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { createSession, currentUser, destroySession, hashPassword, requireAdmin, requireUser, verifyPassword } from "@/lib/auth";
 import { csvEscape, desks, todayKey } from "@/lib/utils";
@@ -13,28 +14,35 @@ const roles = ["Software Engineer", "Software Developer", "Technology Intern", "
 
 export async function registerAction(_: unknown, formData: FormData) {
   const input = z.object({
-    name: z.string().min(2),
-    email: z.string().email(),
-    phone: z.string().min(7),
+    name: z.string().trim().min(2),
+    email: z.string().trim().email(),
+    phone: z.string().trim().min(7),
     password: z.string().min(8).regex(/[A-Z]/, "uppercase").regex(/[0-9]/, "number"),
     role: z.enum(roles as [string, ...string[]])
   }).safeParse(Object.fromEntries(formData));
   if (!input.success) return { error: "Please complete every field. Password needs 8+ characters, one uppercase letter, and one number." };
   const isAdmin = ["HR Specialist", "Engineering Manager"].includes(input.data.role);
   const { password, ...profile } = input.data;
+  const email = input.data.email.toLowerCase();
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) return { error: "That email is already registered. Sign in with that account, or use Forgot password to set a new password." };
   try {
     const user = await prisma.user.create({
       data: {
         ...profile,
-        email: input.data.email.toLowerCase(),
+        email,
         isAdmin,
         passwordHash: await hashPassword(password),
         avatarHue: Math.floor(Math.random() * 300) + 20
       }
     });
     await createSession(user.id);
-  } catch {
-    return { error: "That email is already registered. Sign in with that account, or use Forgot password to set a new password." };
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return { error: "That email is already registered. Sign in with that account, or use Forgot password to set a new password." };
+    }
+    console.error("Registration failed", error);
+    return { error: "Account could not be created right now. Please check the details and try again." };
   }
   redirect(isAdmin ? "/admin/dashboard" : "/employee/dashboard");
 }
