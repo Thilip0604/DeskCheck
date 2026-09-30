@@ -24,9 +24,9 @@ export async function registerAction(_: unknown, formData: FormData) {
   const isAdmin = ["HR Specialist", "Engineering Manager"].includes(input.data.role);
   const { password, ...profile } = input.data;
   const email = input.data.email.toLowerCase();
-  const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) return { error: "That email is already registered. Sign in with that account, or use Forgot password to set a new password." };
   try {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) return { error: "That email is already registered. Sign in with that account, or use Forgot password to set a new password." };
     const user = await prisma.user.create({
       data: {
         ...profile,

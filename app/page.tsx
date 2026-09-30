@@ -12,8 +12,8 @@ export default function Home() {
         </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Link href="/login" className="rounded-lg px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-900">Sign in</Link>
-          <Link href="/register" className="rounded-lg bg-zinc-950 px-4 py-2 text-sm font-semibold text-white shadow-lg dark:bg-white dark:text-zinc-950">Get started</Link>
+          <a href="/login" className="rounded-lg px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-900">Sign in</a>
+          <a href="/register" className="rounded-lg bg-zinc-950 px-4 py-2 text-sm font-semibold text-white shadow-lg dark:bg-white dark:text-zinc-950">Get started</a>
         </div>
       </nav>
 
@@ -29,8 +29,8 @@ export default function Home() {
             DeskCheck gives employees a clear daily check-in flow and gives HR, admins, and managers a reliable control center for hybrid work.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/register" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-semibold text-white shadow-glow">Create account <ArrowRight className="h-4 w-4" /></Link>
-            <Link href="/login" className="rounded-lg border border-zinc-300 px-5 py-3 font-semibold dark:border-zinc-700">Sign in</Link>
+            <a href="/register" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 font-semibold text-white shadow-glow">Create account <ArrowRight className="h-4 w-4" /></a>
+            <a href="/login" className="rounded-lg border border-zinc-300 px-5 py-3 font-semibold dark:border-zinc-700">Sign in</a>
           </div>
           <div className="mt-10 grid max-w-xl grid-cols-3 gap-6 border-t border-zinc-200 pt-6 text-sm dark:border-zinc-800">
             <Proof value="16" label="Managed desks" />
