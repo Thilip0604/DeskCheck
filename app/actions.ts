@@ -49,10 +49,16 @@ export async function loginAction(_: unknown, formData: FormData) {
 }
 
 export async function resetPasswordAction(_: unknown, formData: FormData) {
-  const input = z.object({ email: z.string().email(), password: z.string().min(8) }).safeParse(Object.fromEntries(formData));
-  if (!input.success) return { error: "Use a valid email and an 8+ character password." };
-  await prisma.user.updateMany({
-    where: { email: input.data.email.toLowerCase() },
+  const input = z.object({
+    email: z.string().email(),
+    password: z.string().min(8).regex(/[A-Z]/).regex(/[0-9]/)
+  }).safeParse(Object.fromEntries(formData));
+  if (!input.success) return { error: "Use a valid email and a password with 8+ characters, one uppercase letter, and one number." };
+  const email = input.data.email.toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return { error: "No account found with that email. Please register first." };
+  await prisma.user.update({
+    where: { email },
     data: { passwordHash: await hashPassword(input.data.password) }
   });
   return { ok: "Password reset. You can sign in now." };
@@ -84,6 +90,8 @@ export async function punchInAction(_: unknown, formData: FormData) {
       });
       const existing = await tx.attendance.findFirst({ where: { userId: user.id, status: "ACTIVE" } });
       if (existing) throw new Error("You already have an active shift.");
+      const alreadyLoggedToday = await tx.attendance.findFirst({ where: { userId: user.id, date: input.data.date } });
+      if (alreadyLoggedToday) throw new Error("You already submitted attendance for this date. Contact admin if it needs correction.");
       if (input.data.mode === "ONSITE") {
         const deskTaken = await tx.attendance.findFirst({
           where: { date: input.data.date, desk: input.data.desk, status: "ACTIVE", userId: { not: user.id } },

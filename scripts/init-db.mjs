@@ -43,6 +43,15 @@ CREATE TABLE IF NOT EXISTS Attendance (
   CONSTRAINT Attendance_userId_fkey FOREIGN KEY (userId) REFERENCES User (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 DROP INDEX IF EXISTS Attendance_userId_date_status_key;
+DELETE FROM Attendance
+WHERE id IN (
+  SELECT id FROM (
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY userId, date ORDER BY punchInAt DESC, updatedAt DESC) AS rn
+    FROM Attendance
+  )
+  WHERE rn > 1
+);
+CREATE UNIQUE INDEX IF NOT EXISTS Attendance_user_date_guard ON Attendance(userId, date);
 CREATE INDEX IF NOT EXISTS Attendance_userId_date_status_idx ON Attendance(userId, date, status);
 CREATE UNIQUE INDEX IF NOT EXISTS Attendance_active_user_guard ON Attendance(userId) WHERE status = 'ACTIVE';
 CREATE INDEX IF NOT EXISTS Attendance_date_mode_status_idx ON Attendance(date, mode, status);

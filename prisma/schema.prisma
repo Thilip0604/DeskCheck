@@ -45,6 +45,7 @@ model Attendance {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
+  @@unique([userId, date])
   @@index([userId, date, status])
   @@index([date, mode, status])
 }
